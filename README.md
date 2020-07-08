@@ -16,12 +16,18 @@ as non-parametric (ranking) testing.
 
 ## Data Explained
 Name: Name of Participant (imaginary names)
+
 Year: Year of competition
+
 Round: Round of live championship
+
 Merge: Indicates whether or not the participant successfully entered the live championship
 (all individuals listed in dataset will have "merged" present in this column to indicate that their honor system performance qualifies for participation in the 
 live championship, hence the other additional data available)
+
 Qs 1-12: Indicates whether or not the individual has answered that specfic question correctly
 (0=incorrect response for that question; 1=correct response for that question)
+
 Number correct: Total number of questions correct in live championship
+
 Honor system correct: Percent of questions correct in honor system round
