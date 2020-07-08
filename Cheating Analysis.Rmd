@@ -1,0 +1,318 @@
+---
+title: "Fellowship Project 1:Cheating Analysis"
+author: "Apple Lee"
+date: "6/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# Loading data
+library(tidyverse)
+cheating_analysis<-read_csv("pset3.csv")
+
+# Cleaning data- 2019 round 1
+library(dplyr)
+round1.2019<-select(cheating_analysis,-c(4,5,6,7,8,9,10,11,12,13,14,15,16))
+round1.2019$round[which(round1.2019$round==2)]=NA
+round1.2019$round[which(round1.2019$round==3)]=NA
+round1.2019$round[which(round1.2019$round==4)]=NA
+round1.2019$year[which(round1.2019$year==2018)]=NA
+round1.2019$honorsystemcorrect[which(round1.2019$honorsystemcorrect==-99)]=NA
+round1.2019.1<-na.omit(round1.2019)
+
+round1.2019.2<-mutate(round1.2019.1,honor.system=round1.2019.1$honorsystemcorrect*100)
+final.round1.2019<-mutate(round1.2019.2,championship=round1.2019.2$numbercorrect/12*100)
+
+# Defining variables
+hsperf<-final.round1.2019$honor.system
+cperf<-final.round1.2019$championship
+
+# Plot
+barplot(hsperf,main="Honor System Performance",ylab="Percent Correct",ylim=c(0,100))
+barplot(cperf,main="Championship Performance",ylab="Percent Correct",ylim=c(0,100))
+```
+
+```{r}
+# stats
+avg_honor_system<-mean(hsperf)
+print(avg_honor_system)
+# honor system mean=79.45
+
+avg_championship<-mean(cperf)
+print(avg_championship)
+# championship mean=65.05
+
+sd_honor_system<-sd(hsperf)
+print(sd_honor_system)
+# honor system sd=6.08
+
+sd_championship<-sd(cperf)
+print(sd_championship)
+# championship sd=17.50
+
+diff<-hsperf-cperf
+mean.diff<-avg_honor_system-avg_championship
+print(mean.diff)
+# mean diff=14.40
+
+zscore<-(diff-mean.diff)/(sd(diff))
+
+# Parametric testing
+# p values greater/smaller than 0.05 is significant
+# corresponds to z score of 1.96
+# any individuals with z score greater than 1.96 can be considered as a cheater
+
+library(dbplyr)
+cheaters<-filter(final.round1.2019,zscore>1.96)
+print(cheaters)
+
+cheaters.additional<-filter(final.round1.2019,zscore<(-1.96))
+print(cheaters.additional)
+
+# cheaters1<-filter(final.pset3,zscore>1)
+# cheaters1.additional<-filter(final.pset3,zscore<(-1))
+```
+
+```{r}
+# non-parametric testing
+np_rank<-rank(-diff,na.last=TRUE,ties.method=c("max"))
+print(np_rank)
+top10.np_rank<-filter(final.round1.2019,np_rank<=10)
+print(top10.np_rank)
+# find out how to list in table based on ranking in ascending order
+```
+
+```{r}
+# 2019 round 2
+# data tidying
+cheating_analysis<-read_csv("pset3.csv")
+round2.2019<-select(cheating_analysis,-c(4,5,6,7,8,9,10,11,12,13,14,15,16))
+round2.2019$round[which(round2.2019$round==1)]=NA
+round2.2019$round[which(round2.2019$round==3)]=NA
+round2.2019$round[which(round2.2019$round==4)]=NA
+round2.2019$year[which(round2.2019$year==2018)]=NA
+round2.2019$honorsystemcorrect[which(round2.2019$honorsystemcorrect==-99)]=NA
+round2.2019.1<-na.omit(round2.2019)
+
+round2.2019.2<-mutate(round2.2019.1,honor.system=round2.2019.1$honorsystemcorrect*100)
+final.round2.2019<-mutate(round2.2019.2,championship=round2.2019.2$numbercorrect/12*100)
+
+# Defining variables
+hsperf.2<-final.round2.2019$honor.system
+cperf.2<-final.round2.2019$championship
+```
+
+```{r}
+# stats
+avg_honor_system.2<-mean(hsperf.2)
+print(avg_honor_system.2)
+# honor system mean=79.45
+
+avg_championship.2<-mean(cperf.2)
+print(avg_championship.2)
+# championship mean=48.17
+
+sd_honor_system.2<-sd(hsperf.2)
+print(sd_honor_system.2)
+# honor system sd=6.08
+
+sd_championship.2<-sd(cperf.2)
+print(sd_championship.2)
+# championship sd=20.41
+
+diff.2<-hsperf.2-cperf.2
+mean.diff.2<-avg_honor_system.2-avg_championship.2
+print(mean.diff.2)
+# mean diff=31.27
+
+zscore.2<-(diff.2-mean.diff.2)/(sd(diff.2))
+
+# Parametric testing
+# p values greater/smaller than 0.05 is significant
+# corresponds to z score of 1.96
+# any individuals with z score greater than 1.96 can be considered as a cheater
+
+library(dbplyr)
+cheaters.2<-filter(final.round2.2019,zscore.2>1.96)
+print(cheaters.2)
+
+cheaters.additional.2<-filter(final.round2.2019,zscore.2<(-1.96))
+print(cheaters.additional.2)
+
+# cheaters1<-filter(final.pset3,zscore>1)
+# cheaters1.additional<-filter(final.pset3,zscore<(-1))
+```
+
+```{r}
+# non-parametric testing
+np_rank.2<-rank(-diff.2,na.last=TRUE,ties.method=c("max"))
+print(np_rank.2)
+top10.np_rank.2<-filter(final.round2.2019,np_rank.2<=10)
+print(top10.np_rank.2)
+# find out how to list in table based on ranking in ascending order
+
+overlap.2019<-length(intersect(top10.np_rank$name,top10.np_rank.2$name))
+print(overlap.2019)
+# 2019 cheaters in both rounds=5
+```
+
+```{r}
+# 2018 round 1
+# data tidying
+cheating_analysis<-read_csv("pset3.csv")
+round1.2018<-select(cheating_analysis,-c(4,5,6,7,8,9,10,11,12,13,14,15,16))
+round1.2018$round[which(round1.2018$round==2)]=NA
+round1.2018$round[which(round1.2018$round==3)]=NA
+round1.2018$round[which(round1.2018$round==4)]=NA
+round1.2018$year[which(round1.2018$year==2019)]=NA
+round1.2018$honorsystemcorrect[which(round1.2018$honorsystemcorrect==-99)]=NA
+round1.2018.1<-na.omit(round1.2018)
+
+round1.2018.2<-mutate(round1.2018.1,honor.system=round1.2018.1$honorsystemcorrect*100)
+final.round1.2018<-mutate(round1.2018.2,championship=round1.2018.2$numbercorrect/12*100)
+
+# Defining variables
+hsperf.2018<-final.round1.2018$honor.system
+cperf.2018<-final.round1.2018$championship
+```
+
+```{r}
+# stats
+avg_honor_system.2018<-mean(hsperf.2018)
+print(avg_honor_system.2018)
+# honor system mean=79.7
+
+avg_championship.2018<-mean(cperf.2018)
+print(avg_championship.2018)
+# championship mean=46.48
+
+sd_honor_system.2018<-sd(hsperf.2018)
+print(sd_honor_system.2018)
+# honor system sd=6.43
+
+sd_championship.2018<-sd(cperf.2018)
+print(sd_championship.2018)
+# championship sd=22.23
+
+diff.2018<-hsperf.2018-cperf.2018
+mean.diff.2018<-avg_honor_system.2018-avg_championship.2018
+print(mean.diff.2018)
+# mean diff=33.22
+
+zscore.2018<-(diff.2018-mean.diff.2018)/(sd(diff.2018))
+
+# Parametric testing
+# p values greater/smaller than 0.05 is significant
+# corresponds to z score of 1.96
+# any individuals with z score greater than 1.96 can be considered as a cheater
+
+library(dbplyr)
+cheaters.2018<-filter(final.round1.2018,zscore.2018>1.96)
+print(cheaters.2018)
+
+cheaters.additional.2018<-filter(final.round1.2018,zscore.2018<(-1.96))
+print(cheaters.additional.2018)
+
+# cheaters1<-filter(final.pset3,zscore>1)
+# cheaters1.additional<-filter(final.pset3,zscore<(-1))
+```
+
+```{r}
+# non-parametric testing
+np_rank.2018<-rank(-diff.2018,na.last=TRUE,ties.method=c("max"))
+print(np_rank.2018)
+top10.np_rank.2018<-filter(final.round1.2018,np_rank.2018<=10)
+print(top10.np_rank.2018)
+# find out how to list in table based on ranking in ascending order
+```
+
+```{r}
+# 2018 round 2
+# data tidying
+cheating_analysis<-read_csv("pset3.csv")
+round2.2018<-select(cheating_analysis,-c(4,5,6,7,8,9,10,11,12,13,14,15,16))
+round2.2018$round[which(round2.2018$round==1)]=NA
+round2.2018$round[which(round2.2018$round==3)]=NA
+round2.2018$round[which(round2.2018$round==4)]=NA
+round2.2018$year[which(round2.2018$year==2019)]=NA
+round2.2018$honorsystemcorrect[which(round2.2018$honorsystemcorrect==-99)]=NA
+round2.2018.1<-na.omit(round2.2018)
+
+round2.2018.2<-mutate(round2.2018.1,honor.system=round2.2018.1$honorsystemcorrect*100)
+final.round2.2018<-mutate(round2.2018.2,championship=round2.2018.2$numbercorrect/12*100)
+
+# Defining variables
+hsperf.2018.2<-final.round2.2018$honor.system
+cperf.2018.2<-final.round2.2018$championship
+```
+
+```{r}
+# stats
+avg_honor_system.2018.2<-mean(hsperf.2018.2)
+print(avg_honor_system.2018.2)
+# honor system mean=79.70
+
+avg_championship.2018.2<-mean(cperf.2018.2)
+print(avg_championship.2018.2)
+# championship mean=54.07
+
+sd_honor_system.2018.2<-sd(hsperf.2018.2)
+print(sd_honor_system.2018.2)
+# honor system sd=6.43
+
+sd_championship.2018.2<-sd(cperf.2018.2)
+print(sd_championship.2018.2)
+# championship sd=22.06
+
+diff.2018.2<-hsperf.2018.2-cperf.2018.2
+mean.diff.2018.2<-avg_honor_system.2018.2-avg_championship.2018.2
+print(mean.diff.2018.2)
+# mean diff=25.63
+
+zscore.2018.2<-(diff.2018.2-mean.diff.2018.2)/(sd(diff.2018.2))
+
+# Parametric testing
+# p values greater/smaller than 0.05 is significant
+# corresponds to z score of 1.96
+# any individuals with z score greater than 1.96 can be considered as a cheater
+
+library(dbplyr)
+cheaters.2018.2<-filter(final.round2.2018,zscore.2018.2>1.96)
+print(cheaters.2018.2)
+
+cheaters.additional.2018.2<-filter(final.round2.2018,zscore.2018.2<(-1.96))
+print(cheaters.additional.2018.2)
+
+# cheaters1<-filter(final.pset3,zscore>1)
+# cheaters1.additional<-filter(final.pset3,zscore<(-1))
+```
+
+```{r}
+# non-parametric testing
+np_rank.2018.2<-rank(-diff.2018.2,na.last=TRUE,ties.method=c("max"))
+print(np_rank.2018.2)
+top10.np_rank.2018.2<-filter(final.round2.2018,np_rank.2018.2<=10)
+print(top10.np_rank.2018.2)
+# find out how to list in table based on ranking in ascending order
+
+overlap.2018<-length(intersect(top10.np_rank.2018$name,top10.np_rank.2018.2$name))
+print(overlap.2018)
+# 2018 cheaters in both rounds=3
+```
+
+```{r}
+# data visualization
+# qqplot to check for normality
+qqnorm(final.round1.2018$honor.system,main="2018 Round 1 Honor System");qqline(final.round1.2018$honor.system,col=2)
+qqnorm(final.round1.2018$championship,main="2018 Round 1 Championship");qqline(final.round1.2018$championship,col=2)
+
+qqnorm(final.round2.2018$honor.system,main="2018 Round 2 Honor System");qqline(final.round2.2018$honor.system,col=2)
+qqnorm(final.round2.2018$championship,main="2018 Round 2 Championship");qqline(final.round2.2018$championship,col=2)
+
+qqnorm(final.round1.2019$honor.system,main="2019 Round 1 Honor System");qqline(final.round1.2019$honor.system,col=2)
+qqnorm(final.round1.2019$championship,main="2019 Round 1 Championship");qqline(final.round1.2019$championship,col=2)
+
+qqnorm(final.round2.2019$honor.system,main="2019 Round 2 Honor System");qqline(final.round2.2019$honor.system,col=2)
+qqnorm(final.round2.2019$championship,main="2019 Round 2 Championship");qqline(final.round2.2019$championship,col=2)
+```
+
